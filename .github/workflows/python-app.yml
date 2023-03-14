@@ -16,7 +16,15 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    env:
+      NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+      NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+      PLATFORM_USERNAME: ${{ secrets.PLATFORM_USERNAME }}
+      PLATFORM_PASSWORD: ${{ secrets.PLATFORM_PASSWORD }}
+      #SANDBOX_CLIENT_ID: ${{ secrets.SANDBOX_CLIENT_ID }}
+      #SANDBOX_CLIENT_SECRET: ${{ secrets.SANDBOX_CLIENT_SECRET }} 
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python 3.10
@@ -46,10 +54,11 @@ jobs:
       run: |
         pylint *.py
 
-    - name: Notify slack
-      env:
-        SLACK_BOT_TOKEN: ${{https://hooks.slack.com/services/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}}
-      uses: pullreminders/slack-action@master
-      with:
-        args: '{\"channel\":\"C04TG3SUYGP\",\"text\":\"Hello world\"}'
+    - name: Slack Notification
+      uses: act10ns/slack@v1
+      with: 
+        status: ${{ job.status }}
+        channel: '#projet-devops-python'
+        message: Build {{ env.GITHUB_REF_NAME }} branch Successfully
+      if: always()
             
